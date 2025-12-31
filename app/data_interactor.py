@@ -1,19 +1,17 @@
 from pymongo import MongoClient
-
+from contact import Contact
 from bson.objectid import ObjectId
+import os
 
 
 def get_connection():
-    client = MongoClient(
-        host='localhost',
-        port=27017,
-        # username='user',
-        # password='pass',
-        # authSource='admin'
-    )
-    db = client['contactsdb']
-    collection = db['contacts']
-    return collection
+    mongo_host = os.getenv("MONGO_HOST", "localhost")
+    mongo_port = int(os.getenv("MONGO_PORT", 27017))
+    mongo_db = os.getenv("MONGO_DB", "contactsdb")
+
+    client = MongoClient(host=mongo_host, port=mongo_port)
+    db = client[mongo_db]
+    return db["contacts"]
 
 
 class DatabaseService:
@@ -21,9 +19,14 @@ class DatabaseService:
     @staticmethod
     def get_all_contacts(collection):
         contacts = []
-        for contact in collection.find():
-            contact["_id"] = str(contact["_id"])
-            contacts.append(contact)
+        for document in collection.find():
+            document = Contact(
+                id = str(document["_id"]),
+                first_name = document["first_name"],
+                last_name =document["last_name"],
+                phone_number = document["phone_number"]
+            )
+            contacts.append(document)
         return contacts
 
 

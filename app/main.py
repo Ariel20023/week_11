@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from data_interactor import DatabaseService , get_connection
 from scemas import *
 import uvicorn
+from contact import Contact
 
 app = FastAPI()
 phone  = get_connection()
@@ -10,8 +11,8 @@ phone  = get_connection()
 
 @app.get("/contacts")
 def get_contacts():
-    return DatabaseService.get_all_contacts(phone)
-
+    contact = DatabaseService.get_all_contacts(phone)
+    return [con.to_dict() for con in contact]
 
 
 @app.post("/contacts")
